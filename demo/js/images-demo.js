@@ -159,6 +159,7 @@ var draw_activations = function(elt, A, scale, grads) {
   var w = draw_grads ? A.dw : A.w;
   var mm = maxmin(w);
 
+  A.isSetup = true;
   // create the canvas elements, draw and add to DOM
   for(var d=0;d<A.depth;d++) {
 
@@ -189,11 +190,14 @@ var draw_activations = function(elt, A, scale, grads) {
     }
     ctx.putImageData(g, 0, 0);
     elt.appendChild(canv);
-  }  
+  }
+  A.isSetup = false;
 }
 
 var draw_activations_COLOR = function(elt, A, scale, grads) {
-
+  // if (A.isFilter) {
+  //   debugger;
+  // }
   var s = scale || 2; // scale
   var draw_grads = false;
   if(typeof(grads) !== 'undefined') draw_grads = grads;
@@ -210,6 +214,7 @@ var draw_activations_COLOR = function(elt, A, scale, grads) {
   canv.height = H;
   var ctx = canv.getContext('2d');
   var g = ctx.createImageData(W, H);
+  A.isSetup = true;
   for(var d=0;d<3;d++) {
     for(var x=0;x<A.sx;x++) {
       for(var y=0;y<A.sy;y++) {
@@ -228,6 +233,7 @@ var draw_activations_COLOR = function(elt, A, scale, grads) {
       }
     }
   }
+  A.isSetup = false;
   ctx.putImageData(g, 0, 0);
   elt.appendChild(canv);
 }
@@ -249,6 +255,7 @@ var visualize_activations = function(net, elt) {
     activations_div.appendChild(document.createTextNode('Activations:'));
     activations_div.appendChild(document.createElement('br'));
     activations_div.className = 'layer_act';
+    document.body.appendChild(activations_div);
     var scale = 2;
     if(L.layer_type==='softmax' || L.layer_type==='fc') scale = 10; // for softmax
     
@@ -459,7 +466,6 @@ var test_predict = function() {
 var testImage = function(img) {
   var x = convnetjs.img_to_vol(img);
   var out_p = net.forward(x);
-
 
   var vis_elt = document.getElementById("visnet");
   visualize_activations(net, vis_elt);
