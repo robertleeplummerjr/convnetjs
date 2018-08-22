@@ -535,6 +535,7 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
                     // avoid function call overhead (x2) for efficiency, compromise modularity :(
                     var ix1 = ((V_sx * oy)+ox)*V.depth+fd;
                     var ix2 = ((f.sx * fy)+fx)*f.depth+fd;
+                    console.log(ix1, ix2, ax,ay,d);
                     f.dw[ix2] += V.w[ix1]*chain_grad;
                     V.dw[ix1] += f.w[ix2]*chain_grad;
                   }
@@ -606,14 +607,6 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
       filter.w[wIndex] = wIndex;
     }
   });
-
-  var v = new Vol();
-  v.fromJSON({"sx":6,"sy":6,"depth":1,"w":{"0":-0.5,"1":-0.5,"2":-0.5,"3":-0.5,"4":-0.5,"5":-0.5,"6":-0.5,"7":-0.5,"8":-0.5,"9":-0.5,"10":-0.5,"11":-0.5,"12":-0.5,"13":-0.5,"14":-0.5,"15":-0.5,"16":-0.5,"17":-0.5,"18":-0.5,"19":-0.5,"20":-0.5,"21":-0.5,"22":-0.5,"23":-0.5,"24":-0.5,"25":-0.5,"26":-0.5,"27":-0.5,"28":-0.5,"29":-0.5,"30":-0.5,"31":-0.5,"32":-0.5,"33":-0.5,"34":-0.5,"35":-0.5}});
-  con.forward(v, true);
-  for (var dwIndex = 0; dwIndex < con.out_act.dw.length; dwIndex++) {
-    con.out_act.dw[dwIndex] = dwIndex;
-  }
-  con.backward();
 
   var FullyConnLayer = function(opt) {
     var opt = opt || {};
@@ -803,13 +796,10 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
 
       var n = 0;
       for(var d=0;d<this.out_depth;d++) {
-        var x = -this.pad;
-        var y = -this.pad;
-        for(var ax=0; ax<this.out_sx; x+=this.stride,ax++) {
-          y = -this.pad;
-          for(var ay=0; ay<this.out_sy; y+=this.stride,ay++) {
-
+        for(var ax=0; ax<this.out_sx;ax++) {
+          for(var ay=0; ay<this.out_sy; ay++) {
             var chain_grad = this.out_act.get_grad(ax,ay,d);
+            console.log(this.switchx[n], this.switchy[n]);
             V.add_grad(this.switchx[n], this.switchy[n], d, chain_grad);
             n++;
 
@@ -934,6 +924,7 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
       for(var i=1;i<this.out_depth;i++) {
         if(as[i] > amax) amax = as[i];
       }
+      amax = 0;
 
       // compute exponentials (carefully to not blow up)
       var es = global.zeros(this.out_depth);

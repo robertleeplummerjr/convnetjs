@@ -7,18 +7,18 @@ v.set(1, 0, 0, 3);
 v.set(1, 1, 0, 4);
 
 
-// const output = convnet.FullyConnLayer.prototype.forward.call({
-//   out_depth: 4,
-//   num_inputs: 4,
-//   biases: { w: [0.2, 0.2, 0.2, 0.2] },
-//   filters: [
-//     { w: [1,2,3,4] },
-//     { w: [5,6,7,8] },
-//     { w: [9,10,11,12] },
-//     { w: [13,14,15,16] },
-//   ]
-// }, v);
-// console.log(output);
+const output = convnet.FullyConnLayer.prototype.forward.call({
+  out_depth: 4,
+  num_inputs: 4,
+  biases: { w: [0.2, 0.2, 0.2, 0.2] },
+  filters: [
+    { w: [1,2,3,4] },
+    { w: [5,6,7,8] },
+    { w: [9,10,11,12] },
+    { w: [13,14,15,16] },
+  ]
+}, v);
+console.log(output);
 
 const filters = [
   { w: [1,2,3,4], dw: [0,0,0,0] },
@@ -27,7 +27,7 @@ const filters = [
   { w: [13,14,15,16], dw: [0,0,0,0] },
 ];
 const biases = { w: [0.2, 0.2, 0.2, 0.2], dw: [0,0,0,0] };
-const output = convnet.FullyConnLayer.prototype.backward.call({
+const output2 = convnet.FullyConnLayer.prototype.backward.call({
   out_depth: 4,
   num_inputs: 4,
   in_act: v,
@@ -39,5 +39,5 @@ const output = convnet.FullyConnLayer.prototype.backward.call({
 });
 
 console.log(filters);
-// console.log(biases);
-// console.log(v.dw);
+console.log(biases);
+console.log(v.dw);
