@@ -30,8 +30,8 @@ const output = convnet.ConvLayer.prototype.backward.call({
   pad: 0,
   in_sx: 2,
   in_sy: 2,
-  sx: 1,
-  sy: 1,
+  sx: 2,
+  sy: 2,
   get out_sx() {
     return Math.floor((this.in_sx + this.pad * 2 - this.sx) / this.stride + 1);
   },

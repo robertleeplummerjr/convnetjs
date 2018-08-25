@@ -1,3 +1,4 @@
+var MPL = require('../mpl');
 var convnetjs = convnetjs || { REVISION: 'ALPHA' };
 (function(global) {
   "use strict";
@@ -515,6 +516,7 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
       var V_sy = V.sy |0;
       var xy_stride = this.stride |0;
 
+      var mpl = new MPL('filter', this.filters[0].sx, this.filters[0].sy);
       for(var d=0;d<this.out_depth;d++) {
         var f = this.filters[d];
         var x = -this.pad |0;
@@ -530,12 +532,20 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
               var oy = y+fy; // coordinates in the original input array coordinates
               for(var fx=0;fx<f.sx;fx++) {
                 var ox = x+fx;
-                if(oy>=0 && oy<V_sy && ox>=0 && ox<V_sx) {
-                  for(var fd=0;fd<f.depth;fd++) {
+                for(var fd=0;fd<f.depth;fd++) {
+                  if(oy>=0 && oy<V_sy && ox>=0 && ox<V_sx) {
                     // avoid function call overhead (x2) for efficiency, compromise modularity :(
                     var ix1 = ((V_sx * oy)+ox)*V.depth+fd;
                     var ix2 = ((f.sx * fy)+fx)*f.depth+fd;
-                    console.log(ix1, ix2, ax,ay,d);
+
+                    // mpl.add('deltas', fx, fy, ox, oy, V_sx, V_sy);
+                    mpl.add('inputs', fx, fy, ax, ay, this.out_sx, this.out_sy);
+                    // mpl.add('out', fx, fy, x, y, this.out_sx, this.out_sy);
+
+                    console.log('filter', fx, fy, 'input', ax, ay);
+                    // if (fx === 0 && fy === 0) {
+                    //   console.log('inputs', ax, ay);
+                    // }
                     f.dw[ix2] += V.w[ix1]*chain_grad;
                     V.dw[ix1] += f.w[ix2]*chain_grad;
                   }
@@ -546,6 +556,11 @@ var convnetjs = convnetjs || { REVISION: 'ALPHA' };
           }
         }
       }
+      // console.log(mpl.toString('deltas'));
+      // console.log('');
+      require('fs').writeFileSync('output.log', mpl.toString('inputs'));
+      // console.log('');
+      // console.log(mpl.toString('out'));
     },
     getParamsAndGrads: function() {
       var response = [];
